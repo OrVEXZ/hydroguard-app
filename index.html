@@ -8,7 +8,7 @@
 :root{color-scheme:dark;--bg:#071a2e;--panel:#102941;--panel2:#153550;--line:#294861;--text:#f4f8fc;--muted:#a9bfd0;--blue:#39a8e8;--green:#35c58a;--yellow:#e8c84b;--orange:#ed9944;--red:#f06464}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 0%,#123b5b 0,var(--bg) 38rem);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
 .shell{width:min(1120px,calc(100% - 32px));margin:auto;padding:26px 0 42px}header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}
-.brand{display:flex;align-items:center;gap:12px}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,#2d9edc,#14517a);font-size:25px;font-weight:800}
+.brand{display:flex;align-items:center;gap:12px} .logo{width:46px;height:46px;object-fit:contain;display:block}
 h1{font-size:23px;letter-spacing:.3px;margin:0}.tagline{color:var(--muted);font-size:12px;margin-top:3px}.top-actions{display:flex;align-items:center;gap:10px}
 button{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:10px;padding:10px 14px;font-weight:650;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}
 .statusline{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}.dot{width:9px;height:9px;border-radius:50%;background:var(--yellow);display:inline-block}.dot.online{background:var(--green)}.dot.offline{background:var(--red)}
@@ -23,7 +23,7 @@ button{border:1px solid var(--line);background:var(--panel2);color:var(--text);b
 @media(max-width:480px){.shell{width:calc(100% - 22px);padding-top:17px}header{align-items:flex-start}h1{font-size:20px}.logo{width:40px;height:40px}.top-actions{flex-direction:column;align-items:flex-end}.gauges{gap:9px}.gauge-card{padding:13px 9px;min-height:184px}.gauge{width:112px;height:112px}.gauge:before{width:88px;height:88px}.gauge-number{font-size:23px}.overview{gap:9px}.card{padding:14px}}
 </style></head>
 <body><main class="shell">
-<header><div class="brand"><div class="logo" aria-hidden="true">H</div><div><h1>HydroGuard</h1><div class="tagline">SMART DRAINAGE MONITORING</div></div></div>
+<header><div class="brand"><img src="hydroguard-logo.png" class="logo" alt="HydroGuard Logo"><div><h1>HydroGuard</h1><div class="tagline">SMART DRAINAGE MONITORING</div></div></div>
 <div class="top-actions"><div class="statusline"><span id="connectionDot" class="dot"></span><span id="connectionText">Connecting…</span></div><button id="refreshBtn">Refresh</button></div></header>
 <div class="section-title"><div><h2>System Overview</h2><p>Live readings from HydroGuard Cloud API</p></div><div class="statusline" id="lastUpdated">Waiting for data</div></div>
 <section class="overview">
