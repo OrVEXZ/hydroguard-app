@@ -46,20 +46,266 @@ button{border:1px solid var(--line);background:var(--panel2);color:var(--text);b
 <div class="warning">Pump buttons are disabled because the current Worker only supports sensor readings. A secure pump-command endpoint and verified relay wiring are required before remote control can be enabled.</div></article></section>
 <div class="footer">HydroGuard · <span id="footerMessage">Waiting for ESP32 data</span></div></main>
 <script>
-const API_URL="https://hydroguard-live-api.anamikasathish09.workers.dev/readings",POLL_MS=5000,$=id=>document.getElementById(id);
-function levelForWater(p){const cm=p/100*2.20;if(cm<=.20)return"DRY";if(cm<=.90)return"NORMAL";if(cm<=1.80)return"HIGH";return"CRITICAL"}
-function colorFor(s){return({DRY:"#e8c84b",NORMAL:"#35c58a",HIGH:"#ed9944",CRITICAL:"#f06464"})[s]||"#39a8e8"}
-function gauge(n,v,s){v=Math.max(0,Math.min(100,Number(v)));$(n+"Value").textContent=Math.round(v);$(n+"Gauge").style.setProperty("--value",v);$(n+"Gauge").style.setProperty("--gauge-color",colorFor(s));$(n+"Status").textContent=s;$(n+"Status").style.color=colorFor(s)}
-function alertLine(id,title,on){$(id).textContent=title+(on?" — ACTIVE":" — clear");$(id).style.color=on?"#f06464":"#35c58a"}
-async function load(){try{const res=await fetch(API_URL,{cache:"no-store"});if(!res.ok)throw Error("HTTP "+res.status);const data=await res.json();$("connectionDot").className="dot online";$("connectionText").textContent="API connected";
-if(!data.readings){$("overallStatus").textContent="Awaiting ESP32";$("overallNote").textContent="The API is working. No sensor readings have arrived yet.";$("assessment").textContent="Not assessed";$("assessmentNote").textContent="Connect the ESP32 and send its first readings.";$("lastUpdated").textContent="No readings yet";$("footerMessage").textContent="API connected · waiting for ESP32";return}
-const r=data.readings;for(const k of["upstream","downstream","rain","wallHealth"])if(typeof r[k]!=="number"||!Number.isFinite(r[k]))throw Error("Invalid "+k+" reading");
-const up=levelForWater(r.upstream),down=levelForWater(r.downstream),rain=r.rain>=60?"HIGH":"NORMAL",wall=r.wallHealth>60?"HIGH":"NORMAL";
-gauge("upstream",r.upstream,up);gauge("downstream",r.downstream,down);gauge("rain",r.rain,rain);gauge("wall",r.wallHealth,wall);
-const overflow=up==="CRITICAL"||down==="CRITICAL",flood=["HIGH","CRITICAL"].includes(up)&&["HIGH","CRITICAL"].includes(down)&&r.rain>=60,seepage=up==="CRITICAL"&&down==="CRITICAL"&&r.wallHealth>60;
-alertLine("overflowAlert","Overflow alert",overflow);alertLine("floodAlert","Flood alert",flood);alertLine("seepageAlert","Seepage alert",seepage);
-let status="NORMAL",note="No configured alert condition is active.";if(seepage){status="SEEPAGE RISK";note="Both water sensors are critical and wall moisture is above 60%."}else if(flood){status="FLOOD RISK";note="Both water sensors are high or critical and rainfall is at least 60%."}else if(overflow){status="OVERFLOW RISK";note="At least one water sensor is critical."}
-$("overallStatus").textContent=status;$("overallNote").textContent=note;$("assessment").textContent=status==="NORMAL"?"Drainage normal":"Attention required";$("assessmentNote").textContent=note;const d=r.updatedAt?new Date(r.updatedAt):null;$("lastUpdated").textContent=d&&!isNaN(d)?"Updated "+d.toLocaleTimeString():"Live readings received";$("footerMessage").textContent="Live readings received";
-}catch(e){$("connectionDot").className="dot offline";$("connectionText").textContent="API unavailable";$("overallStatus").textContent="Connection unavailable";$("overallNote").textContent="Check internet and the Cloudflare Worker."; $("footerMessage").textContent=e.message||"Unable to load readings"}}
-$("refreshBtn").addEventListener("click",load);load();setInterval(load,POLL_MS);if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
+"use strict";
+
+const API_URL =
+  "https://hydroguard-live-api.anamikasathish09.workers.dev/readings";
+
+const POLL_VISIBLE = 3000;
+const POLL_HIDDEN = 15000;
+const REQUEST_TIMEOUT = 5000;
+
+const $ = id => document.getElementById(id);
+
+let timer = null;
+let loading = false;
+let lastTimestamp = null;
+let failures = 0;
+
+function levelForWater(p) {
+  const cm = p / 100 * 2.20;
+
+  if (cm <= 0.20) return "DRY";
+  if (cm <= 0.90) return "NORMAL";
+  if (cm <= 1.80) return "HIGH";
+
+  return "CRITICAL";
+}
+
+function colorFor(s) {
+  return {
+    DRY: "#e8c84b",
+    NORMAL: "#35c58a",
+    HIGH: "#ed9944",
+    CRITICAL: "#f06464"
+  }[s] || "#39a8e8";
+}
+
+function gauge(n, v, s) {
+  v = Math.max(0, Math.min(100, Number(v)));
+
+  $(n + "Value").textContent = Math.round(v);
+
+  $(n + "Gauge").style.setProperty("--value", v);
+  $(n + "Gauge").style.setProperty(
+    "--gauge-color",
+    colorFor(s)
+  );
+
+  $(n + "Status").textContent = s;
+  $(n + "Status").style.color = colorFor(s);
+}
+
+function alertLine(id, title, active) {
+  $(id).textContent =
+    title + (active ? " — ACTIVE" : " — clear");
+
+  $(id).style.color =
+    active ? "#f06464" : "#35c58a";
+}
+
+function updateDashboard(r) {
+
+  const up = levelForWater(r.upstream);
+  const down = levelForWater(r.downstream);
+
+  const rain = r.rain >= 60 ? "HIGH" : "NORMAL";
+  const wall = r.wallHealth > 60 ? "HIGH" : "NORMAL";
+
+  gauge("upstream", r.upstream, up);
+  gauge("downstream", r.downstream, down);
+  gauge("rain", r.rain, rain);
+  gauge("wall", r.wallHealth, wall);
+
+  const overflow =
+    up === "CRITICAL" || down === "CRITICAL";
+
+  const flood =
+    ["HIGH", "CRITICAL"].includes(up) &&
+    ["HIGH", "CRITICAL"].includes(down) &&
+    r.rain >= 60;
+
+  const seepage =
+    up === "CRITICAL" &&
+    down === "CRITICAL" &&
+    r.wallHealth > 60;
+
+  alertLine("overflowAlert", "Overflow alert", overflow);
+  alertLine("floodAlert", "Flood alert", flood);
+  alertLine("seepageAlert", "Seepage alert", seepage);
+
+  let status = "NORMAL";
+  let note = "No configured alert condition is active.";
+
+  if (seepage) {
+    status = "SEEPAGE RISK";
+    note = "Both water sensors are critical and wall moisture is above 60%.";
+  } else if (flood) {
+    status = "FLOOD RISK";
+    note = "Both water sensors are high or critical and rainfall is at least 60%.";
+  } else if (overflow) {
+    status = "OVERFLOW RISK";
+    note = "At least one water sensor is critical.";
+  }
+
+  $("overallStatus").textContent = status;
+  $("overallNote").textContent = note;
+
+  $("assessment").textContent =
+    status === "NORMAL" ? "Drainage normal" : "Attention required";
+
+  $("assessmentNote").textContent = note;
+
+  const d = r.updatedAt ? new Date(r.updatedAt) : null;
+
+  $("lastUpdated").textContent =
+    d && !isNaN(d)
+      ? "Updated " + d.toLocaleTimeString()
+      : "Live readings received";
+
+  $("footerMessage").textContent = "Live readings received";
+}
+
+function setConnection(online) {
+
+  $("connectionDot").className =
+    online ? "dot online" : "dot offline";
+
+  $("connectionText").textContent =
+    online ? "API connected" : "Reconnecting...";
+}
+
+async function load() {
+
+  if (loading || document.hidden) return;
+
+  loading = true;
+
+  const controller = new AbortController();
+
+  const timeout = setTimeout(
+    () => controller.abort(),
+    REQUEST_TIMEOUT
+  );
+
+  try {
+
+    const response = await fetch(API_URL, {
+      method: "GET",
+      cache: "no-store",
+      signal: controller.signal,
+      headers: {
+        "Cache-Control": "no-cache"
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error("HTTP " + response.status);
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error("API returned an error");
+    }
+
+    failures = 0;
+    setConnection(true);
+
+    if (!data.readings) {
+      $("overallStatus").textContent = "Awaiting ESP32";
+      $("overallNote").textContent =
+        "Waiting for sensor readings.";
+
+      $("lastUpdated").textContent = "No readings yet";
+      $("footerMessage").textContent = "Waiting for ESP32 data";
+
+      return;
+    }
+
+    const r = data.readings;
+
+    for (const key of [
+      "upstream",
+      "downstream",
+      "rain",
+      "wallHealth"
+    ]) {
+      if (
+        typeof r[key] !== "number" ||
+        !Number.isFinite(r[key]) ||
+        r[key] < 0 ||
+        r[key] > 100
+      ) {
+        throw new Error("Invalid " + key + " reading");
+      }
+    }
+
+    // Update the dashboard only when new data arrives.
+    if (r.updatedAt !== lastTimestamp) {
+
+      lastTimestamp = r.updatedAt;
+
+      updateDashboard(r);
+    }
+
+  } catch (error) {
+
+    failures++;
+
+    setConnection(false);
+
+    $("footerMessage").textContent =
+      error.name === "AbortError"
+        ? "Request timed out"
+        : "Connection interrupted";
+
+  } finally {
+
+    clearTimeout(timeout);
+    loading = false;
+
+    scheduleNext();
+  }
+}
+
+function scheduleNext() {
+
+  clearTimeout(timer);
+
+  const delay = document.hidden
+    ? POLL_HIDDEN
+    : POLL_VISIBLE;
+
+  timer = setTimeout(load, delay);
+}
+
+// Manual refresh
+$("refreshBtn").addEventListener("click", () => {
+  clearTimeout(timer);
+  load();
+});
+
+// Refresh immediately when returning to the app
+document.addEventListener("visibilitychange", () => {
+
+  clearTimeout(timer);
+
+  if (!document.hidden) {
+    load();
+  } else {
+    scheduleNext();
+  }
+
+});
+
+// Reconnect when internet returns
+window.addEventListener("online", () => {
+  clearTimeout(timer);
+  load();
+});
+
+// Initial connection
+load();
+
 </script></body></html>
