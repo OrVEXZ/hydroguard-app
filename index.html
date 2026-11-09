@@ -1,55 +1,489 @@
+```html
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#071a2e"><meta name="description" content="HydroGuard live drainage monitoring">
-<title>HydroGuard</title><link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" href="./icon-192.png">  
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071a2e">
+<meta name="description" content="HydroGuard live drainage monitoring">
+<title>HydroGuard</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="./icon-192.png">
+
 <style>
-:root{color-scheme:dark;--bg:#071a2e;--panel:#102941;--panel2:#153550;--line:#294861;--text:#f4f8fc;--muted:#a9bfd0;--blue:#39a8e8;--green:#35c58a;--yellow:#e8c84b;--orange:#ed9944;--red:#f06464}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 0%,#123b5b 0,var(--bg) 38rem);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
-.shell{width:min(1120px,calc(100% - 32px));margin:auto;padding:26px 0 42px}header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}
-.brand{display:flex;align-items:center;gap:12px} .logo{width:46px;height:46px;object-fit:contain;display:block}
-h1{font-size:23px;letter-spacing:.3px;margin:0}.tagline{color:var(--muted);font-size:12px;margin-top:3px}.top-actions{display:flex;align-items:center;gap:10px}
-button{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:10px;padding:10px 14px;font-weight:650;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}
-.statusline{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}.dot{width:9px;height:9px;border-radius:50%;background:var(--yellow);display:inline-block}.dot.online{background:var(--green)}.dot.offline{background:var(--red)}
-.section-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:24px 0 13px}.section-title h2{font-size:17px;margin:0}.section-title p{color:var(--muted);font-size:12px;margin:4px 0 0}
-.overview{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:14px;margin-bottom:14px}.card{background:linear-gradient(150deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 12px 30px #0002}
-.summary-label{color:var(--muted);font-size:12px}.summary-value{font-size:22px;font-weight:750;margin-top:8px}.summary-note{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.45}
-.gauges{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.gauge-card{min-height:205px}.gauge-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.gauge-title{font-size:13px;color:var(--muted);font-weight:650}.badge{font-size:10px;font-weight:800;letter-spacing:.5px;padding:5px 8px;border-radius:20px;background:#ffffff12}
-.gauge-wrap{display:grid;place-items:center;padding:14px 0 5px}.gauge{width:128px;height:128px;border-radius:50%;display:grid;place-items:center;position:relative;background:conic-gradient(var(--gauge-color,var(--blue)) calc(var(--value,0)*1%),#29445a 0)}.gauge:before{content:"";position:absolute;width:101px;height:101px;border-radius:50%;background:#102941}.gauge-number{position:relative;font-size:26px;font-weight:800}.gauge-number small{font-size:12px;color:var(--muted)}.gauge-foot{text-align:center;color:var(--muted);font-size:11px}
-.lower{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin-top:14px}.alert-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.alert-row:last-child{border-bottom:0;padding-bottom:0}.alert-icon{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:#ffffff12}.alert-name{font-size:13px;font-weight:750}.alert-detail{color:var(--muted);font-size:12px;margin-top:4px;line-height:1.4}
-.pump-state{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}.pump-state strong{font-size:18px}.pump-buttons{display:flex;gap:9px;margin-top:10px}.warning{border:1px solid #a87935;background:#5d421b55;color:#f3d49b;border-radius:11px;padding:11px 12px;font-size:12px;line-height:1.45;margin-top:12px}.footer{color:var(--muted);text-align:center;font-size:11px;margin-top:24px}
-@media(max-width:800px){.gauges{grid-template-columns:repeat(2,1fr)}.overview{grid-template-columns:1fr 1fr}.overview .card:first-child{grid-column:1/-1}.lower{grid-template-columns:1fr}}
-@media(max-width:480px){.shell{width:calc(100% - 22px);padding-top:17px}header{align-items:flex-start}h1{font-size:20px}.logo{width:40px;height:40px}.top-actions{flex-direction:column;align-items:flex-end}.gauges{gap:9px}.gauge-card{padding:13px 9px;min-height:184px}.gauge{width:112px;height:112px}.gauge:before{width:88px;height:88px}.gauge-number{font-size:23px}.overview{gap:9px}.card{padding:14px}}
-</style></head>
-<body><main class="shell">
-<header><div class="brand"><img src="hydroguard-logo.png" class="logo" alt="HydroGuard Logo"><div><h1>HydroGuard</h1><div class="tagline">SMART DRAINAGE MONITORING</div></div></div>
-<div class="top-actions"><div class="statusline"><span id="connectionDot" class="dot"></span><span id="connectionText">Connecting…</span></div><button id="refreshBtn">Refresh</button></div></header>
-<div class="section-title"><div><h2>System Overview</h2><p>Live readings from HydroGuard Cloud API</p></div><div class="statusline" id="lastUpdated">Waiting for data</div></div>
+:root{
+  color-scheme:dark;
+  --bg:#071a2e;
+  --panel:#102941;
+  --panel2:#153550;
+  --line:#294861;
+  --text:#f4f8fc;
+  --muted:#a9bfd0;
+  --blue:#39a8e8;
+  --green:#35c58a;
+  --yellow:#e8c84b;
+  --orange:#ed9944;
+  --red:#f06464;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:radial-gradient(circle at 85% 0%,#123b5b 0,var(--bg) 38rem);
+  color:var(--text);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  min-height:100vh;
+}
+
+.shell{
+  width:min(1120px,calc(100% - 32px));
+  margin:auto;
+  padding:26px 0 42px;
+}
+
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:24px;
+}
+
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;object-fit:contain;display:block}
+h1{font-size:23px;letter-spacing:.3px;margin:0}
+.tagline{color:var(--muted);font-size:12px;margin-top:3px}
+.top-actions{display:flex;align-items:center;gap:10px}
+
+button{
+  border:1px solid var(--line);
+  background:var(--panel2);
+  color:var(--text);
+  border-radius:10px;
+  padding:10px 14px;
+  font-weight:650;
+  cursor:pointer;
+}
+
+button:disabled{opacity:.45;cursor:not-allowed}
+
+.statusline{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:var(--yellow);
+  display:inline-block;
+}
+
+.dot.online{background:var(--green)}
+.dot.offline{background:var(--red)}
+
+.section-title{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:12px;
+  margin:24px 0 13px;
+}
+
+.section-title h2{font-size:17px;margin:0}
+.section-title p{color:var(--muted);font-size:12px;margin:4px 0 0}
+
+.overview{
+  display:grid;
+  grid-template-columns:1.3fr 1fr 1fr;
+  gap:14px;
+  margin-bottom:14px;
+}
+
+.card{
+  background:linear-gradient(150deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 12px 30px #0002;
+}
+
+.summary-label{color:var(--muted);font-size:12px}
+.summary-value{font-size:22px;font-weight:750;margin-top:8px}
+.summary-note{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.45}
+
+.gauges{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+
+.gauge-card{min-height:205px}
+
+.gauge-head{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:center;
+}
+
+.gauge-title{font-size:13px;color:var(--muted);font-weight:650}
+
+.badge{
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.5px;
+  padding:5px 8px;
+  border-radius:20px;
+  background:#ffffff12;
+}
+
+.gauge-wrap{display:grid;place-items:center;padding:14px 0 5px}
+
+.gauge{
+  width:128px;
+  height:128px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  position:relative;
+  background:conic-gradient(var(--gauge-color,var(--blue)) calc(var(--value,0)*1%),#29445a 0);
+}
+
+.gauge:before{
+  content:"";
+  position:absolute;
+  width:101px;
+  height:101px;
+  border-radius:50%;
+  background:#102941;
+}
+
+.gauge-number{position:relative;font-size:26px;font-weight:800}
+.gauge-number small{font-size:12px;color:var(--muted)}
+.gauge-foot{text-align:center;color:var(--muted);font-size:11px}
+
+.lower{
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:14px;
+  margin-top:14px;
+}
+
+.alert-row{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:12px 0;
+  border-bottom:1px solid var(--line);
+}
+
+.alert-row:last-child{border-bottom:0;padding-bottom:0}
+
+.alert-icon{
+  width:32px;
+  height:32px;
+  border-radius:10px;
+  display:grid;
+  place-items:center;
+  background:#ffffff12;
+}
+
+.alert-name{font-size:13px;font-weight:750}
+.alert-detail{color:var(--muted);font-size:12px;margin-top:4px;line-height:1.4}
+
+.pump-state{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 0;
+}
+
+.pump-state strong{font-size:18px}
+
+.pump-buttons{
+  display:flex;
+  gap:9px;
+  margin-top:10px;
+  flex-wrap:wrap;
+}
+
+.pump-buttons button{flex:1;min-width:75px}
+
+#pumpOnBtn{background:#245b49;border-color:#35c58a}
+#pumpOffBtn{background:#663535;border-color:#f06464}
+#pumpAutoBtn{background:#244c70;border-color:#39a8e8}
+
+.pin-input{
+  width:100%;
+  padding:12px;
+  border-radius:9px;
+  border:1px solid var(--line);
+  background:var(--bg);
+  color:white;
+  margin:8px 0;
+}
+
+.warning{
+  border:1px solid #a87935;
+  background:#5d421b55;
+  color:#f3d49b;
+  border-radius:11px;
+  padding:11px 12px;
+  font-size:12px;
+  line-height:1.45;
+  margin-top:12px;
+}
+
+.footer{
+  color:var(--muted);
+  text-align:center;
+  font-size:11px;
+  margin-top:24px;
+}
+
+@media(max-width:800px){
+  .gauges{grid-template-columns:repeat(2,1fr)}
+  .overview{grid-template-columns:1fr 1fr}
+  .overview .card:first-child{grid-column:1/-1}
+  .lower{grid-template-columns:1fr}
+}
+
+@media(max-width:480px){
+  .shell{width:calc(100% - 22px);padding-top:17px}
+  header{align-items:flex-start}
+  h1{font-size:20px}
+  .logo{width:40px;height:40px}
+  .top-actions{flex-direction:column;align-items:flex-end}
+  .gauges{gap:9px}
+  .gauge-card{padding:13px 9px;min-height:184px}
+  .gauge{width:112px;height:112px}
+  .gauge:before{width:88px;height:88px}
+  .gauge-number{font-size:23px}
+  .overview{gap:9px}
+  .card{padding:14px}
+}
+</style>
+</head>
+
+<body>
+<main class="shell">
+
+<header>
+  <div class="brand">
+    <img src="hydroguard-logo.png" class="logo" alt="HydroGuard Logo">
+    <div>
+      <h1>HydroGuard</h1>
+      <div class="tagline">SMART DRAINAGE MONITORING</div>
+    </div>
+  </div>
+
+  <div class="top-actions">
+    <div class="statusline">
+      <span id="connectionDot" class="dot"></span>
+      <span id="connectionText">Connecting…</span>
+    </div>
+    <button id="refreshBtn">Refresh</button>
+  </div>
+</header>
+
+<div class="section-title">
+  <div>
+    <h2>System Overview</h2>
+    <p>Live readings from HydroGuard Cloud API</p>
+  </div>
+  <div class="statusline" id="lastUpdated">Waiting for data</div>
+</div>
+
 <section class="overview">
-<article class="card"><div class="summary-label">OVERALL STATUS</div><div class="summary-value" id="overallStatus">Awaiting readings</div><div class="summary-note" id="overallNote">Waiting for the ESP32 to send its first readings.</div></article>
-<article class="card"><div class="summary-label">DRAINAGE ASSESSMENT</div><div class="summary-value" id="assessment">Not assessed</div><div class="summary-note" id="assessmentNote">Live sensor data is required.</div></article>
-<article class="card"><div class="summary-label">DATA SOURCE</div><div class="summary-value">Cloudflare API</div><div class="summary-note">Automatic refresh every 5 seconds</div></article></section>
-<div class="section-title"><div><h2>Sensor Readings</h2><p>Percentage display</p></div></div>
+
+  <article class="card">
+    <div class="summary-label">OVERALL STATUS</div>
+    <div class="summary-value" id="overallStatus">Awaiting readings</div>
+    <div class="summary-note" id="overallNote">
+      Waiting for the ESP32 to send its first readings.
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="summary-label">DRAINAGE ASSESSMENT</div>
+    <div class="summary-value" id="assessment">Not assessed</div>
+    <div class="summary-note" id="assessmentNote">
+      Live sensor data is required.
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="summary-label">DATA SOURCE</div>
+    <div class="summary-value">Cloudflare API</div>
+    <div class="summary-note">Automatic refresh every 3 seconds</div>
+  </article>
+
+</section>
+
+<div class="section-title">
+  <div>
+    <h2>Sensor Readings</h2>
+    <p>Percentage display</p>
+  </div>
+</div>
+
 <section class="gauges">
-<article class="card gauge-card"><div class="gauge-head"><span class="gauge-title">UPSTREAM WATER</span><span class="badge" id="upstreamStatus">—</span></div><div class="gauge-wrap"><div class="gauge" id="upstreamGauge"><div class="gauge-number"><span id="upstreamValue">--</span><small>%</small></div></div></div><div class="gauge-foot">Water level</div></article>
-<article class="card gauge-card"><div class="gauge-head"><span class="gauge-title">DOWNSTREAM WATER</span><span class="badge" id="downstreamStatus">—</span></div><div class="gauge-wrap"><div class="gauge" id="downstreamGauge"><div class="gauge-number"><span id="downstreamValue">--</span><small>%</small></div></div></div><div class="gauge-foot">Water level</div></article>
-<article class="card gauge-card"><div class="gauge-head"><span class="gauge-title">RAINFALL</span><span class="badge" id="rainStatus">—</span></div><div class="gauge-wrap"><div class="gauge" id="rainGauge"><div class="gauge-number"><span id="rainValue">--</span><small>%</small></div></div></div><div class="gauge-foot">Rain sensor</div></article>
-<article class="card gauge-card"><div class="gauge-head"><span class="gauge-title">WALL HEALTH</span><span class="badge" id="wallStatus">—</span></div><div class="gauge-wrap"><div class="gauge" id="wallGauge"><div class="gauge-number"><span id="wallValue">--</span><small>%</small></div></div></div><div class="gauge-foot">Wall moisture sensor reading</div></article></section>
-<section class="lower"><article class="card"><div class="section-title" style="margin:0 0 6px"><div><h2>Alerts & Assessment</h2><p>Configured HydroGuard conditions</p></div></div>
-<div class="alert-row"><div class="alert-icon">💧</div><div><div class="alert-name" id="overflowAlert">Overflow alert: waiting</div><div class="alert-detail">Either water sensor reaches CRITICAL.</div></div></div>
-<div class="alert-row"><div class="alert-icon">🌧️</div><div><div class="alert-name" id="floodAlert">Flood alert: waiting</div><div class="alert-detail">Both water sensors HIGH or above, with rainfall at least 60%.</div></div></div>
-<div class="alert-row"><div class="alert-icon">🏠</div><div><div class="alert-name" id="seepageAlert">Seepage alert: waiting</div><div class="alert-detail">Both water sensors CRITICAL, with wall moisture above 60%.</div></div></div></article>
-<article class="card"><div class="section-title" style="margin:0 0 6px"><div><h2>Pump Control</h2><p>Physical pump control not connected yet</p></div></div>
-<div class="pump-state"><span class="summary-label">PUMP STATUS</span><strong id="pumpStatus">Not connected</strong></div><div class="pump-buttons"><button disabled>Turn ON</button><button disabled>Turn OFF</button></div>
-<div class="warning">Pump buttons are disabled because the current Worker only supports sensor readings. A secure pump-command endpoint and verified relay wiring are required before remote control can be enabled.</div></article></section>
-<div class="footer">HydroGuard · <span id="footerMessage">Waiting for ESP32 data</span></div></main>
+
+  <article class="card gauge-card">
+    <div class="gauge-head">
+      <span class="gauge-title">UPSTREAM WATER</span>
+      <span class="badge" id="upstreamStatus">—</span>
+    </div>
+    <div class="gauge-wrap">
+      <div class="gauge" id="upstreamGauge">
+        <div class="gauge-number"><span id="upstreamValue">--</span><small>%</small></div>
+      </div>
+    </div>
+    <div class="gauge-foot">Water level</div>
+  </article>
+
+  <article class="card gauge-card">
+    <div class="gauge-head">
+      <span class="gauge-title">DOWNSTREAM WATER</span>
+      <span class="badge" id="downstreamStatus">—</span>
+    </div>
+    <div class="gauge-wrap">
+      <div class="gauge" id="downstreamGauge">
+        <div class="gauge-number"><span id="downstreamValue">--</span><small>%</small></div>
+      </div>
+    </div>
+    <div class="gauge-foot">Water level</div>
+  </article>
+
+  <article class="card gauge-card">
+    <div class="gauge-head">
+      <span class="gauge-title">RAINFALL</span>
+      <span class="badge" id="rainStatus">—</span>
+    </div>
+    <div class="gauge-wrap">
+      <div class="gauge" id="rainGauge">
+        <div class="gauge-number"><span id="rainValue">--</span><small>%</small></div>
+      </div>
+    </div>
+    <div class="gauge-foot">Rain sensor</div>
+  </article>
+
+  <article class="card gauge-card">
+    <div class="gauge-head">
+      <span class="gauge-title">WALL HEALTH</span>
+      <span class="badge" id="wallStatus">—</span>
+    </div>
+    <div class="gauge-wrap">
+      <div class="gauge" id="wallGauge">
+        <div class="gauge-number"><span id="wallValue">--</span><small>%</small></div>
+      </div>
+    </div>
+    <div class="gauge-foot">Wall moisture sensor reading</div>
+  </article>
+
+</section>
+
+<section class="lower">
+
+  <article class="card">
+
+    <div class="section-title" style="margin:0 0 6px">
+      <div>
+        <h2>Alerts & Assessment</h2>
+        <p>Configured HydroGuard conditions</p>
+      </div>
+    </div>
+
+    <div class="alert-row">
+      <div class="alert-icon">💧</div>
+      <div>
+        <div class="alert-name" id="overflowAlert">Overflow alert: waiting</div>
+        <div class="alert-detail">Either water sensor reaches CRITICAL.</div>
+      </div>
+    </div>
+
+    <div class="alert-row">
+      <div class="alert-icon">🌧️</div>
+      <div>
+        <div class="alert-name" id="floodAlert">Flood alert: waiting</div>
+        <div class="alert-detail">
+          Both water sensors HIGH or above, with rainfall at least 60%.
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-row">
+      <div class="alert-icon">🏠</div>
+      <div>
+        <div class="alert-name" id="seepageAlert">Seepage alert: waiting</div>
+        <div class="alert-detail">
+          Both water sensors CRITICAL, with wall moisture above 60%.
+        </div>
+      </div>
+    </div>
+
+  </article>
+
+  <article class="card">
+
+    <div class="section-title" style="margin:0 0 6px">
+      <div>
+        <h2>Pump Control</h2>
+        <p>Remote pump management</p>
+      </div>
+    </div>
+
+    <div class="pump-state">
+      <span class="summary-label">PUMP STATUS</span>
+      <strong id="pumpStatus">Waiting for ESP32</strong>
+    </div>
+
+    <div class="summary-label">CONTROL PIN</div>
+    <input
+      id="controlPin"
+      class="pin-input"
+      type="password"
+      placeholder="Enter your control PIN"
+      autocomplete="off"
+    >
+
+    <div class="pump-buttons">
+      <button id="pumpOnBtn">Turn ON</button>
+      <button id="pumpOffBtn">Turn OFF</button>
+      <button id="pumpAutoBtn">AUTO</button>
+    </div>
+
+    <div id="pumpMessage" class="warning">
+      Waiting for pump controller connection.
+    </div>
+
+  </article>
+
+</section>
+
+<div class="footer">
+  HydroGuard · <span id="footerMessage">Waiting for ESP32 data</span>
+</div>
+
+</main>
+
 <script>
 "use strict";
 
-const API_URL =
-  "https://hydroguard-live-api.anamikasathish09.workers.dev/readings";
+// HYDROGUARD CLOUD API
+const API_BASE =
+  "https://hydroguard-live-api.anamikasathish09.workers.dev";
+
+const READINGS_URL = API_BASE + "/readings";
+const COMMAND_URL = API_BASE + "/pump-command";
+const STATUS_URL = API_BASE + "/pump-status";
 
 const POLL_VISIBLE = 3000;
 const POLL_HIDDEN = 15000;
@@ -60,7 +494,7 @@ const $ = id => document.getElementById(id);
 let timer = null;
 let loading = false;
 let lastTimestamp = null;
-let failures = 0;
+let commandSending = false;
 
 function levelForWater(p) {
   const cm = p / 100 * 2.20;
@@ -85,12 +519,8 @@ function gauge(n, v, s) {
   v = Math.max(0, Math.min(100, Number(v)));
 
   $(n + "Value").textContent = Math.round(v);
-
   $(n + "Gauge").style.setProperty("--value", v);
-  $(n + "Gauge").style.setProperty(
-    "--gauge-color",
-    colorFor(s)
-  );
+  $(n + "Gauge").style.setProperty("--gauge-color", colorFor(s));
 
   $(n + "Status").textContent = s;
   $(n + "Status").style.color = colorFor(s);
@@ -167,7 +597,6 @@ function updateDashboard(r) {
 }
 
 function setConnection(online) {
-
   $("connectionDot").className =
     online ? "dot online" : "dot offline";
 
@@ -175,11 +604,7 @@ function setConnection(online) {
     online ? "API connected" : "Reconnecting...";
 }
 
-async function load() {
-
-  if (loading || document.hidden) return;
-
-  loading = true;
+async function fetchWithTimeout(url, options = {}) {
 
   const controller = new AbortController();
 
@@ -189,15 +614,25 @@ async function load() {
   );
 
   try {
-
-    const response = await fetch(API_URL, {
-      method: "GET",
-      cache: "no-store",
+    return await fetch(url, {
+      ...options,
       signal: controller.signal,
-      headers: {
-        "Cache-Control": "no-cache"
-      }
+      cache: "no-store"
     });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function load() {
+
+  if (loading || document.hidden) return;
+
+  loading = true;
+
+  try {
+
+    const response = await fetchWithTimeout(READINGS_URL);
 
     if (!response.ok) {
       throw new Error("HTTP " + response.status);
@@ -209,17 +644,13 @@ async function load() {
       throw new Error("API returned an error");
     }
 
-    failures = 0;
     setConnection(true);
 
     if (!data.readings) {
       $("overallStatus").textContent = "Awaiting ESP32";
-      $("overallNote").textContent =
-        "Waiting for sensor readings.";
-
+      $("overallNote").textContent = "Waiting for sensor readings.";
       $("lastUpdated").textContent = "No readings yet";
       $("footerMessage").textContent = "Waiting for ESP32 data";
-
       return;
     }
 
@@ -241,17 +672,12 @@ async function load() {
       }
     }
 
-    // Update the dashboard only when new data arrives.
     if (r.updatedAt !== lastTimestamp) {
-
       lastTimestamp = r.updatedAt;
-
       updateDashboard(r);
     }
 
   } catch (error) {
-
-    failures++;
 
     setConnection(false);
 
@@ -262,15 +688,12 @@ async function load() {
 
   } finally {
 
-    clearTimeout(timeout);
     loading = false;
-
     scheduleNext();
   }
 }
 
 function scheduleNext() {
-
   clearTimeout(timer);
 
   const delay = document.hidden
@@ -280,32 +703,164 @@ function scheduleNext() {
   timer = setTimeout(load, delay);
 }
 
-// Manual refresh
+// SEND PUMP COMMAND
+async function sendPumpCommand(command) {
+
+  if (commandSending) return;
+
+  const pin = $("controlPin").value.trim();
+
+  if (!pin) {
+    $("pumpMessage").textContent =
+      "Please enter your control PIN first.";
+    return;
+  }
+
+  if (command === "ON") {
+    const confirmed = confirm(
+      "Send a command to turn the pump ON?"
+    );
+
+    if (!confirmed) return;
+  }
+
+  commandSending = true;
+
+  $("pumpMessage").textContent =
+    "Sending " + command + " command...";
+
+  try {
+
+    const response = await fetchWithTimeout(COMMAND_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Control-PIN": pin
+      },
+      body: JSON.stringify({
+        command: command
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Command failed");
+    }
+
+    $("pumpMessage").textContent =
+      command + " command sent successfully. Waiting for ESP32 acknowledgement.";
+
+  } catch (error) {
+
+    $("pumpMessage").textContent =
+      "Command error: " + error.message;
+
+  } finally {
+
+    commandSending = false;
+  }
+}
+
+// READ ACTUAL PUMP STATUS REPORTED BY ESP32
+async function loadPumpStatus() {
+
+  try {
+
+    const response = await fetchWithTimeout(STATUS_URL);
+
+    if (!response.ok) {
+      throw new Error("Status unavailable");
+    }
+
+    const data = await response.json();
+
+    if (!data.success || !data.status) {
+      $("pumpStatus").textContent = "Waiting for ESP32";
+      return;
+    }
+
+    const s = data.status;
+
+    const updated = s.updatedAt
+      ? new Date(s.updatedAt).getTime()
+      : 0;
+
+    // Treat old status as stale.
+    if (!updated || Date.now() - updated > 30000) {
+      $("pumpStatus").textContent = "ESP32 status stale";
+      return;
+    }
+
+    $("pumpStatus").textContent =
+      s.pumpOn ? "ON" : "OFF";
+
+    $("pumpStatus").style.color =
+      s.pumpOn ? "#35c58a" : "#a9bfd0";
+
+    $("pumpMessage").textContent =
+      "Controller mode: " + s.mode;
+
+  } catch (error) {
+
+    $("pumpStatus").textContent = "Not connected";
+
+  }
+}
+
+// BUTTON EVENTS
+$("pumpOnBtn").addEventListener("click", () => {
+  sendPumpCommand("ON");
+});
+
+$("pumpOffBtn").addEventListener("click", () => {
+  sendPumpCommand("OFF");
+});
+
+$("pumpAutoBtn").addEventListener("click", () => {
+  sendPumpCommand("AUTO");
+});
+
+// REFRESH BUTTON
 $("refreshBtn").addEventListener("click", () => {
   clearTimeout(timer);
   load();
+  loadPumpStatus();
 });
 
-// Refresh immediately when returning to the app
+// REFRESH WHEN APP BECOMES VISIBLE
 document.addEventListener("visibilitychange", () => {
 
   clearTimeout(timer);
 
   if (!document.hidden) {
     load();
+    loadPumpStatus();
   } else {
     scheduleNext();
   }
 
 });
 
-// Reconnect when internet returns
+// INTERNET RETURNS
 window.addEventListener("online", () => {
   clearTimeout(timer);
   load();
+  loadPumpStatus();
 });
 
-// Initial connection
+// INITIAL CONNECTION
 load();
+loadPumpStatus();
 
-</script></body></html>
+// CHECK PUMP STATUS EVERY 3 SECONDS
+setInterval(() => {
+  if (!document.hidden) {
+    loadPumpStatus();
+  }
+}, 3000);
+
+</script>
+</body>
+</html>
+```
